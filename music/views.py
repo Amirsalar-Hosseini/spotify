@@ -3,11 +3,49 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+import requests
+
+
+def top_artists():
+    url = "" # url top artists from api music website storage (for example rapidapi.com/top-artists)
+    headers = {
+        "<this for api key>": "", # api
+        "<this for api host>": "" # EX: spotify-scraper.p.rapidapi.com
+    }
+
+    response = requests.get(url, headers=headers)
+    response_data = response.json()
+
+    artists_info = []
+
+    if 'artists' in response_data:
+        for artist in response_data['artists']:
+            name = artist.get('name', 'No Name')
+            avatar_url = artist.get('visuals', {}).get('avatar', [{}])[0].get('url', 'No URL')
+            artist_id = artist.get('id', 'No ID')
+            artists_info.append((name, avatar_url, artist_id))
+
+    return artists_info
+
+def top_tracks():
+    url = "" # url top artists from api music website storage (for example rapidapi.com/top-artists)
+    headers = {
+        "<this for api key>": "", # api
+        "<this for api host>": "" # EX: spotify-scraper.p.rapidapi.com
+    }
+
+    response = requests.get(url, headers=headers)
+    response_data = response.json()
 
 
 @login_required(login_url='login')
 def index(request):
-    return render(request, 'index.html')
+    artists_info = top_artists()
+
+    context = {
+        'artists_info': artists_info
+    }
+    return render(request, 'index.html', context=context)
 
 def login(request):
     if request.method == 'POST':
