@@ -35,15 +35,44 @@ def top_tracks():
     }
 
     response = requests.get(url, headers=headers)
-    response_data = response.json()
+
+    data = response.json()
+    track_details = []
+    if 'tracks' in data:
+        shortened_data = data['tracks'][:18]
+        # id, name, artist_name, cover url
+        for track in shortened_data:
+            track_id = track['id']
+            track_name = track['name']
+            artist_name = track['artists'][0]['name'] if track['artists'] else None
+            cover_url = track['album']['cover'][0]['url'] if track['album']['cover'] else None
+
+            track_details.append({
+                'id': track_id,
+                'name': track_name,
+                'artist': artist_name,
+                'cover_url': cover_url,
+            })
+    else:
+        print('No tracks found')
+    return track_details
 
 
 @login_required(login_url='login')
 def index(request):
     artists_info = top_artists()
+    top_track_list = top_tracks()
+
+    # 18 / 6 = 3 parts
+    first_six_tracks = top_track_list[:6]
+    second_six_tracks = top_track_list[6:12]
+    third_six_tracks = top_track_list[12:18]
 
     context = {
-        'artists_info': artists_info
+        'artists_info': artists_info,
+        'first_six_tracks': first_six_tracks,
+        'second_six_tracks': second_six_tracks,
+        'third_six_tracks': third_six_tracks,
     }
     return render(request, 'index.html', context=context)
 
