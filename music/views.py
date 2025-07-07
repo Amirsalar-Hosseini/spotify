@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User, auth
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from bs4 import BeautifulSoup as bs
@@ -9,10 +8,11 @@ import requests
 
 
 def top_artists():
-    url = "" # url top artists from api music website storage (for example rapidapi.com/top-artists)
+    url = "https://spotify-scraper.p.rapidapi.com/v1/chart/artists/top"
+
     headers = {
-        "<this for api key>": "", # api
-        "<this for api host>": "" # EX: spotify-scraper.p.rapidapi.com
+        "X-RapidAPI-Key": "02912db996msh068b089c778126bp13a9d9jsn380afeb7d573",
+        "X-RapidAPI-Host": "spotify-scraper.p.rapidapi.com"
     }
 
     response = requests.get(url, headers=headers)
@@ -30,10 +30,11 @@ def top_artists():
     return artists_info
 
 def top_tracks():
-    url = "" # url top artists from api music website storage (for example rapidapi.com/top-artists)
+    url = "https://spotify-scraper.p.rapidapi.com/v1/chart/tracks/top"
+
     headers = {
-        "<this for api key>": "", # api
-        "<this for api host>": "" # EX: spotify-scraper.p.rapidapi.com
+        "X-RapidAPI-Key": "02912db996msh068b089c778126bp13a9d9jsn380afeb7d573",
+        "X-RapidAPI-Host": "spotify-scraper.p.rapidapi.com"
     }
 
     response = requests.get(url, headers=headers)
@@ -61,13 +62,13 @@ def top_tracks():
 
 def get_audio_details(query):
 
-    url = "" # url top artists from api music website storage (for example rapidapi.com/top-artists)
+    url = "https://spotify-scraper.p.rapidapi.com/v1/track/download"
 
     querystring = {"track": query}
 
     headers = {
-        "<this for api key>": "", # api
-        "<this for api host>": "" # EX: spotify-scraper.p.rapidapi.com
+        "X-RapidAPI-Key": "02912db996msh068b089c778126bp13a9d9jsn380afeb7d573",
+        "X-RapidAPI-Host": "spotify-scraper.p.rapidapi.com"
     }
 
     response = requests.get(url, headers=headers, params=querystring)
@@ -114,13 +115,13 @@ def get_track_image(track_id, track_name):
 def music(request, pk):
     track_id = pk
 
-    url = "" # url top artists from api music website storage (for example rapidapi.com/top-artists)
+    url = "https://spotify-scraper.p.rapidapi.com/v1/track/metadata"
 
     querystring = {"trackId": track_id}
 
     headers = {
-        "<this for api key>": "", # api
-        "<this for api host>": "" # EX: spotify-scraper.p.rapidapi.com
+        "X-RapidAPI-Key": "02912db996msh068b089c778126bp13a9d9jsn380afeb7d573",
+        "X-RapidAPI-Host": "spotify-scraper.p.rapidapi.com"
     }
 
     response = requests.get(url, headers=headers, params=querystring)
@@ -172,18 +173,19 @@ def search(request):
     if request.method == 'POST':
         search_query = request.POST['search_query']
 
-        url = ""  # url top artists from api music website storage (for example rapidapi.com/top-artists)
+        url = "https://spotify-scraper.p.rapidapi.com/v1/search"
 
-        querystring = {"term": search_query, 'type': 'track'}
+        querystring = {"term":search_query,"type":"track"}
 
         headers = {
-            "<this for api key>": "",  # api
-            "<this for api host>": ""  # EX: spotify-scraper.p.rapidapi.com
+            "X-RapidAPI-Key": "02912db996msh068b089c778126bp13a9d9jsn380afeb7d573",
+            "X-RapidAPI-Host": "spotify-scraper.p.rapidapi.com"
         }
 
         response = requests.get(url, headers=headers, params=querystring)
 
         track_list = []
+        search_results_count = 0
         if response.status_code == 200:
             data = response.json()
 
@@ -218,13 +220,14 @@ def search(request):
 
 def profile(request, pk):
     artist_id = pk
-    url = "" # url top artists from api music website storage (for example rapidapi.com/top-artists)
+
+    url = "https://spotify-scraper.p.rapidapi.com/v1/artist/overview"
 
     querystring = {"artistId": artist_id}
 
     headers = {
-        "<this for api key>": "", # api
-        "<this for api host>": "" # EX: spotify-scraper.p.rapidapi.com
+        "X-RapidAPI-Key": "02912db996msh068b089c778126bp13a9d9jsn380afeb7d573",
+        "X-RapidAPI-Host": "spotify-scraper.p.rapidapi.com"
     }
 
     response = requests.get(url, headers=headers, params=querystring)
@@ -243,7 +246,7 @@ def profile(request, pk):
             if get_track_image(trackid, trackname):
                 trackimage = get_track_image(trackid, trackname)
             else:
-                trackimage = '<a default image link>'
+                trackimage = "https://imgv3.fotor.com/images/blog-richtext-image/music-of-the-spheres-album-cover.jpg"
 
             track_info = {
                 'id': track['id'],
