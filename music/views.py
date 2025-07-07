@@ -168,6 +168,54 @@ def index(request):
     }
     return render(request, 'index.html', context=context)
 
+def search(request):
+    if request.method == 'POST':
+        search_query = request.POST['search_query']
+
+        url = ""  # url top artists from api music website storage (for example rapidapi.com/top-artists)
+
+        querystring = {"term": search_query, 'type': 'track'}
+
+        headers = {
+            "<this for api key>": "",  # api
+            "<this for api host>": ""  # EX: spotify-scraper.p.rapidapi.com
+        }
+
+        response = requests.get(url, headers=headers, params=querystring)
+
+        track_list = []
+        if response.status_code == 200:
+            data = response.json()
+
+            search_results_count = data['totalCount']
+            tracks = data['tracks']['items']
+
+            for track in tracks:
+                track_name = track['name']
+                artist_name = track['artists'][0]['name']
+                duration = track['durationText']
+                trackid = track['id']
+
+                if get_track_image(trackid, track_name):
+                    track_image = get_track_image(trackid, track_name)
+                else:
+                    track_image = '<a default image link>'
+                track_list.append({
+                    'trackid': trackid,
+                    'track_name': track_name,
+                    'artist_name': artist_name,
+                    'cover_url': track_image,
+                    'duration': duration,
+                    'track_image': track_image,
+                })
+        context = {
+            'search_results_count': search_results_count,
+            'track_list': track_list,
+        }
+        return render(request, 'search.html', context)
+    else:
+        return render(request, 'search.html')
+
 def profile(request, pk):
     artist_id = pk
     url = "" # url top artists from api music website storage (for example rapidapi.com/top-artists)
