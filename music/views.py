@@ -63,7 +63,7 @@ def get_audio_details(query):
 
     url = "" # url top artists from api music website storage (for example rapidapi.com/top-artists)
 
-    querystring = {"trackId": query}
+    querystring = {"track": query}
 
     headers = {
         "<this for api key>": "", # api
@@ -167,6 +167,55 @@ def index(request):
         'third_six_tracks': third_six_tracks,
     }
     return render(request, 'index.html', context=context)
+
+def profile(request, pk):
+    artist_id = pk
+    url = "" # url top artists from api music website storage (for example rapidapi.com/top-artists)
+
+    querystring = {"artistId": artist_id}
+
+    headers = {
+        "<this for api key>": "", # api
+        "<this for api host>": "" # EX: spotify-scraper.p.rapidapi.com
+    }
+
+    response = requests.get(url, headers=headers, params=querystring)
+
+    if response.status_code == 200:
+        data = response.json()
+        name = data['name']
+        monthly_listeners = data['status']['monthlyListeners']
+        header_url = data['visuals']['header'][0]['url']
+
+        top_tracks = []
+
+        for track in data['discography']['topTracks']:
+            trackid = str(track['id'])
+            trackname = str(track['name'])
+            if get_track_image(trackid, trackname):
+                trackimage = get_track_image(trackid, trackname)
+            else:
+                trackimage = '<a default image link>'
+
+            track_info = {
+                'id': track['id'],
+                'name': track['name'],
+                'durationText': track['durationText'],
+                'playCount': track['playCount'],
+                'track_image': trackimage,
+            }
+            top_tracks.append(track_info)
+
+        artist_data = {
+            'name': name,
+            'monthlyListeners': monthly_listeners,
+            'headerUrl': header_url,
+            'topTracks': top_tracks,
+        }
+    else:
+        artist_data = {}
+
+    return render(request, 'profile.html', artist_data)
 
 def login(request):
     if request.method == 'POST':
